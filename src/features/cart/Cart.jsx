@@ -2,12 +2,13 @@ import Button from '../../ui/Button'
 import LinkButton from '../../ui/LinkButton';
 import { useDispatch, useSelector } from 'react-redux';
 import CartItem from './CartItem';
-import { clearCart } from './cartSlice';
+import { clearCart, getTotalPrice } from './cartSlice';
 import EmptyCart from './EmptyCart'
 
 function Cart() {
   const cart = useSelector(state=>state.cart.cart);
   const userName= useSelector(state=>state.user.userName)
+  const totalAmount = useSelector(getTotalPrice);
   const dispatch = useDispatch();
 
   if(!cart.length) return <EmptyCart/>
@@ -22,6 +23,10 @@ function Cart() {
           <CartItem item={item} key={item.pizzaId} />
         ))}
       </ul>
+      <div className='  divide-stone-200 border-b flex justify-between py-4'>
+        <p className='font-semibold '>Total Amount :</p>
+        <p className='mr-4 font-bold'>${totalAmount}</p>
+      </div>
       <div className="mt-6 space-x-2">
         <Button to="/order/new" type="primary" >
           Order pizzas
