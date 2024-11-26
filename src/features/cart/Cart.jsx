@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import CartItem from './CartItem';
 import { clearCart, getTotalPrice } from './cartSlice';
 import EmptyCart from './EmptyCart'
-
 function Cart() {
   const cart = useSelector(state=>state.cart.cart);
   const userName= useSelector(state=>state.user.userName)
@@ -31,7 +30,6 @@ function Cart() {
         <Button to="/order/new" type="primary" >
           Order pizzas
         </Button>
-
         <Button type="secondary" onClick={()=>dispatch(clearCart())}>
           Clear cart
         </Button>
