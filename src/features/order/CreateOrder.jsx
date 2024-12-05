@@ -1,50 +1,32 @@
-import { useState } from 'react';
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom';
 import { createOrder } from '../../services/apiRestaurant';
 import Button from '../../ui/Button';
-import { useSelector } from 'react-redux';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCart, getCart } from '../cart/cartSlice';
+import store from '../../store';
+import EmptyCart from '../cart/EmptyCart'
+import { fetchAddress } from '../user/userSlice';
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
     str
   );
 
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: 'Mediterranean',
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32,
-  },
-  {
-    pizzaId: 6,
-    name: 'Vegetale',
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13,
-  },
-  {
-    pizzaId: 11,
-    name: 'Spinach and Mushroom',
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15,
-  },
-];
 
 function CreateOrder() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
-  const userName = useSelector(state=>state.user.userName);
+  const {userName,address}= useSelector(state=>state.user);
   const formErrors = useActionData();
-
+  const dispatch = useDispatch();
+  console.log(address)
   // const [withPriority, setWithPriority] = useState(false);
-  const cart = fakeCart;
-
+  const cart = useSelector(getCart);
+  if(!cart.length) return <EmptyCart/>;
+  
   return (
     <div className="px-4 py-6">
+     
       <h2 className="mb-8 text-xl font-semibold">Ready to order? Let's go!</h2>
 
       {/* <Form method="POST" action="/order/new"> */}
@@ -66,16 +48,21 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center relative">
           <label className="sm:basis-40">Address</label>
-          <div className="grow">
+          <div className="grow ">
             <input
               className="input w-full"
               type="text"
               name="address"
+              value={address}
               required
             />
           </div>
+          <span className='absolute right-[3px] bottom-0 z-50 md:right-[5px] md:top-[5px] '>
+
+           <Button type={"small"} onClick={()=>dispatch(fetchAddress())}>get position</Button>
+          </span>
         </div>
 
         <div className="mb-12 flex items-center gap-5">
@@ -106,7 +93,6 @@ function CreateOrder() {
 export async function action({ request }) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
-
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
@@ -122,11 +108,10 @@ export async function action({ request }) {
 
   // If everything is okay, create new order and redirect
 
-  // const newOrder = await createOrder(order);
+  const newOrder = await createOrder(order);
+    store.dispatch(clearCart())
+  return redirect(`/order/${newOrder.id}`);
 
-  // return redirect(`/order/${newOrder.id}`);
-
-  return null;
 }
 
 export default CreateOrder;

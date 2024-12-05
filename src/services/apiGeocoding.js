@@ -1,6 +1,6 @@
-export async function getAddress({ latitude, longitude }) {
+export async function getAddress(position) {
   const res = await fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}`
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.latitude}&longitude=${position.longitude}`
   );
   if (!res.ok) throw Error("Failed getting address");
 
